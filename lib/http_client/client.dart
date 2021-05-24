@@ -28,7 +28,6 @@ class Client {
   }
 
   Future<dynamic> _put(String path, Map<String, dynamic> body) async {
-    debugPrint(jsonEncode(body));
     final response = await http
         .put(Uri.http(this._host, path), body: jsonEncode(body), headers: {
       "Cookie": this._cookie.toString(),
@@ -46,11 +45,12 @@ class Client {
       "Cookie": this._cookie.toString(),
     });
 
-    final setCookieValue = response.headers.remove("Set-Cookies");
+    final setCookieValue = response.headers["set-cookie"];
     if (setCookieValue != null) {
       final cookie = Cookie.fromSetCookieValue(setCookieValue);
       if (cookie.name == "session") {
         this._cookie = cookie;
+        await this.saveCookie();
       }
     }
     final decodedBody = jsonDecode(response.body);
@@ -70,6 +70,11 @@ class Client {
       throw decodedBody["message"];
     }
     return decodedBody;
+  }
+
+  Future<UserInfo> me() async {
+    final response = await _get("/me", null);
+    return UserInfo.fromJSON(response);
   }
 
   Future<UserInfo> login(String account, String password) async {
@@ -97,7 +102,13 @@ class Client {
     final result = await _get("/api/item", <String, dynamic>{
       "id": id.toString(),
     });
-    debugPrint(result.toString());
+    return ItemData.fromJSON(result);
+  }
+
+  Future<ItemData> getItemByID(String id) async {
+    final result = await _get("/api/item", <String, dynamic>{
+      "item_id": id,
+    });
     return ItemData.fromJSON(result);
   }
 
@@ -198,6 +209,7 @@ class Client {
   Future<void> modifyBorrowRecord(
     int id, {
     int? borrowID,
+    DateTime? borrowDate,
     DateTime? replyDate,
     String? note,
     bool? returned,
@@ -211,7 +223,11 @@ class Client {
     }
 
     if (replyDate != null) {
-      body["reply_date"] = replyDate.toIso8601String();
+      body["reply_date"] = replyDate.toUtc().toIso8601String();
+    }
+
+    if (borrowDate != null) {
+      body["borrow_date"] = borrowDate.toUtc().toIso8601String();
     }
 
     if (note != null) {
@@ -231,7 +247,6 @@ class Client {
     required DateTime borrowDate,
     String? note,
   }) async {
-    debugPrint(borrowDate.toIso8601String());
     final result = await _post("/api/borrow_record", {
       "borrower_id": borrowerID,
       "item_id": itemID,

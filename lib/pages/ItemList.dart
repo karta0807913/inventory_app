@@ -91,13 +91,24 @@ class _ItemListState extends State<ItemList> {
                 child: FloatingActionButton(
                   heroTag: "scan qrcode",
                   child: Icon(Icons.camera_alt),
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    ItemData? itemData = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => ScanItemQrCode(),
                       ),
                     );
+                    if (itemData != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ItemInfoPage(
+                            itemData,
+                            notifyChange: () => setState(() {}),
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
               ),

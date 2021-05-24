@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:inventory_app/global.dart';
 import 'package:inventory_app/http_client/responses.dart';
 import 'package:inventory_app/pages/Borrower/NewBorrowerDialog.dart';
-import 'package:inventory_app/utils.dart';
 
 class SearchBorrowerDialog extends StatefulWidget {
   final void Function(Borrower)? onSelect;

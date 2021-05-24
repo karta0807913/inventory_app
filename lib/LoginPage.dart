@@ -10,17 +10,44 @@ class LoginPage extends StatelessWidget {
       home: Scaffold(
         body: Padding(
           padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-          child: _SubmitForm(),
+          child: SubmitForm(),
         ),
       ),
     );
   }
 }
 
-class _SubmitForm extends StatelessWidget {
+class SubmitForm extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _SubmitFormState();
+}
+
+class _SubmitFormState extends State<SubmitForm> {
   final account = TextEditingController();
   final password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    ServerAdapter.loadCookie().then((value) async {
+      if (value) {
+        try {
+          final userInfo = await ServerAdapter.me();
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) {
+              return HomePage(userInfo);
+            }),
+            (route) => false,
+          );
+        } catch (error) {
+          debugPrint(error.toString());
+        }
+      }
+    });
+  }
 
   String? _noneEmptyCheck(String? value) {
     if (value == null || value.isEmpty) {
@@ -120,16 +147,6 @@ class _SubmitForm extends StatelessWidget {
                       try {
                         final userInfo = await ServerAdapter.login(
                             account.text, password.text);
-                        debugPrint(userInfo.nickname);
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              // title: Text("Message"),
-                              content: Text(userInfo.nickname),
-                            );
-                          },
-                        );
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(

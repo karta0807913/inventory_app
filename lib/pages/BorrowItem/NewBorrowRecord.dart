@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_app/global.dart';
 import 'package:inventory_app/http_client/responses.dart';
 import 'package:inventory_app/pages/Borrower/SearchBorrowerDialog.dart';
+import 'package:inventory_app/pages/ScanItemQrCode.dart';
 import 'package:inventory_app/utils.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
@@ -22,6 +22,7 @@ class NewBorrowReardState extends State<NewBorrowRecord> {
   final RoundedLoadingButtonController _btnController =
       RoundedLoadingButtonController();
   Borrower? borrower;
+  ItemData? itemData;
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +48,15 @@ class NewBorrowReardState extends State<NewBorrowRecord> {
                       controller: _borrowerController,
                       icon: Icon(Icons.account_box),
                       title: "借出人",
-                      textOnTap: () {
-                        showDialog(
+                      validator: (input) {
+                        if (borrower == null) {
+                          return "請選擇借出人";
+                        }
+                        return null;
+                      },
+                      textOnTap: () async {
+                        FocusScope.of(context).unfocus();
+                        await showDialog(
                           context: context,
                           builder: (context) {
                             return SearchBorrowerDialog(
@@ -59,13 +67,34 @@ class NewBorrowReardState extends State<NewBorrowRecord> {
                             });
                           },
                         );
+                        FocusScope.of(context).unfocus();
                       },
                     ),
                     TextTileEdit(
                       controller: _itemController,
                       icon: Icon(Icons.account_box),
                       title: "借出物品",
-                      textOnTap: () {},
+                      validator: (input) {
+                        if (itemData == null) {
+                          return "請選擇物品";
+                        }
+                        return null;
+                      },
+                      textOnTap: () async {
+                        FocusScope.of(context).unfocus();
+                        ItemData? itemData = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ScanItemQrCode(),
+                          ),
+                        );
+                        FocusScope.of(context).unfocus();
+                        if (itemData == null) {
+                          return;
+                        }
+                        this.itemData = itemData;
+                        _itemController.text = itemData.name;
+                      },
                     ),
                     TextTileEdit(
                       controller: _borrowDateController,
@@ -99,7 +128,7 @@ class NewBorrowReardState extends State<NewBorrowRecord> {
                   debugPrint(_itemController.text);
                   await ServerAdapter.newBorrowRecord(
                     borrowerID: borrower!.id,
-                    itemID: int.parse(_itemController.text),
+                    itemID: itemData!.id,
                     borrowDate: DateTime.parse(_borrowDateController.text),
                   );
                   _btnController.success();
@@ -121,48 +150,4 @@ class NewBorrowReardState extends State<NewBorrowRecord> {
       ),
     );
   }
-}
-
-Widget dateTimePickerBuilder(BuildContext context) {
-  late DateTime tempPickedDate;
-  return Container(
-    height: 250,
-    child: Column(
-      children: <Widget>[
-        Container(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              CupertinoButton(
-                child: Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              CupertinoButton(
-                child: Text('Done'),
-                onPressed: () {
-                  Navigator.pop(context, tempPickedDate);
-                },
-              ),
-            ],
-          ),
-        ),
-        Divider(
-          height: 0,
-          thickness: 1,
-        ),
-        Expanded(
-          child: Container(
-            child: CupertinoDatePicker(
-              mode: CupertinoDatePickerMode.dateAndTime,
-              onDateTimeChanged: (DateTime dateTime) {
-                tempPickedDate = dateTime;
-              },
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
 }

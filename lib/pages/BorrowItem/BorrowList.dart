@@ -3,7 +3,6 @@ import 'package:inventory_app/http_client/responses.dart';
 import 'package:inventory_app/pages/BorrowItem/BorrowRecordList.dart';
 import 'package:inventory_app/pages/BorrowItem/EditBorrowRecord.dart';
 import 'package:inventory_app/pages/BorrowItem/NewBorrowRecord.dart';
-import 'package:inventory_app/pages/Borrower/SearchBorrowerDialog.dart';
 
 class BorrowListPage extends StatefulWidget {
   @override
@@ -30,6 +29,7 @@ class _BorrowListPageState extends State<BorrowListPage> {
             itemData: itemData,
             notifyChange: () {
               _borrowList.refresh();
+              setState(() {});
             },
           );
         },
