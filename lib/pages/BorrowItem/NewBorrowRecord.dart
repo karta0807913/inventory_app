@@ -9,6 +9,9 @@ import 'package:inventory_app/utils.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 class NewBorrowRecord extends StatefulWidget {
+  final void Function()? notifyChange;
+  NewBorrowRecord({Key? key, this.notifyChange}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => NewBorrowReardState();
 }
@@ -132,6 +135,7 @@ class NewBorrowReardState extends State<NewBorrowRecord> {
                     borrowDate: DateTime.parse(_borrowDateController.text),
                   );
                   _btnController.success();
+                  widget.notifyChange?.call();
                   Timer(Duration(seconds: 1), () {
                     Navigator.pop(context);
                   });

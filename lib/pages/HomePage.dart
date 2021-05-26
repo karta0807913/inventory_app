@@ -94,28 +94,8 @@ class UserInfoWidget extends StatelessWidget {
               child: Text(_username),
             )
           ],
-        )
+        ),
       ],
-    );
-  }
-}
-
-class Page1 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Center(
-      child: Text("A"),
-    );
-  }
-}
-
-class Page2 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Center(
-      child: Text("B"),
     );
   }
 }

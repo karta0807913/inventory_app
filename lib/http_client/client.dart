@@ -86,12 +86,21 @@ class Client {
   }
 
   Future<Iterable<ItemData>> getItemList(
-      {String? name, int limit = 20, int offset = 0}) async {
-    final List<dynamic> result = await _get("/api/item", <String, dynamic>{
+      {String? name, ItemState? state, int limit = 20, int offset = 0}) async {
+    Map<String, dynamic> query = {
       "name": name,
       "limit": limit.toString(),
       "offset": offset.toString(),
-    });
+    };
+    if (state != null) {
+      query["state"] = jsonEncode({
+        "correct": state.correct,
+        "fixing": state.fixing,
+        "unlabel": state.unlabel,
+        "discard": state.discard,
+      });
+    }
+    final List<dynamic> result = await _get("/api/item", query);
     if (result.length != 0) {
       return result.map((e) => ItemData.fromJSON(e));
     }

@@ -13,8 +13,6 @@ class BorrowRecordList extends StatefulWidget {
     required ItemData itemData,
   })? onTap;
 
-  late void Function() refresh;
-
   BorrowRecordList(
       {this.itemID, this.borrowerID, this.onTap, this.notifyChange, Key? key})
       : super(key: key);
@@ -33,7 +31,7 @@ class BorrowRecordListState extends State<BorrowRecordList> {
   int _offset = 0;
   int limit = 40;
 
-  loadMore() async {
+  Future<void> loadMore() async {
     if (_loading || _finish) return;
     try {
       _loading = true;
@@ -74,9 +72,21 @@ class BorrowRecordListState extends State<BorrowRecordList> {
   void initState() {
     super.initState();
     this.loadMore();
-    widget.refresh = () {
-      setState(() {});
-    };
+  }
+
+  void refresh() {
+    setState(() {});
+  }
+
+  Future<void> reload() {
+    late Future<void> load;
+    setState(() {
+      _offset = 0;
+      _finish = false;
+      _borrowRecords.clear();
+      load = this.loadMore();
+    });
+    return load;
   }
 
   Future<void> _toggleReturnedState(int i) async {

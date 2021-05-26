@@ -10,9 +10,8 @@ class BorrowListPage extends StatefulWidget {
 }
 
 class _BorrowListPageState extends State<BorrowListPage> {
-  late BorrowRecordList _borrowList = BorrowRecordList(
-    onTap: this._editRecord,
-  );
+  final GlobalKey<BorrowRecordListState> _bKey =
+      GlobalKey<BorrowRecordListState>();
 
   void _editRecord({
     required BorrowRecord record,
@@ -28,7 +27,7 @@ class _BorrowListPageState extends State<BorrowListPage> {
             borrower: borrower,
             itemData: itemData,
             notifyChange: () {
-              _borrowList.refresh();
+              _bKey.currentState?.refresh();
               setState(() {});
             },
           );
@@ -40,13 +39,19 @@ class _BorrowListPageState extends State<BorrowListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _borrowList,
+      body: BorrowRecordList(
+        onTap: this._editRecord,
+      ),
       floatingActionButton: FloatingActionButton(
         heroTag: "add borrow record",
         child: Icon(Icons.add_rounded),
         onPressed: () async {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return NewBorrowRecord();
+            return NewBorrowRecord(
+              notifyChange: () {
+                _bKey.currentState?.reload();
+              },
+            );
           }));
         },
       ),

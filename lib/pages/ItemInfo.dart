@@ -12,9 +12,7 @@ class ItemInfoPage extends StatefulWidget {
   final ItemData item;
   final void Function()? notifyChange;
 
-  ItemInfoPage(this.item, {this.notifyChange}) {
-    debugPrint(item.state.correct.toString());
-  }
+  ItemInfoPage(this.item, {this.notifyChange});
 
   @override
   State<StatefulWidget> createState() => _ItemInfoPateState();
